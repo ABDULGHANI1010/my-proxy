@@ -2,13 +2,13 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Helper function to get ALL pages of data
-async function fetchAllPages(url, cursorParam = 'cursor') {
+// Helper function to get ALL pages
+async function fetchAllPages(url) {
   let results = [];
   let cursor = null;
 
   do {
-    const fullUrl = cursor ? `${url}&${cursorParam}=${cursor}` : url;
+    const fullUrl = cursor ? `${url}&cursor=${cursor}` : url;
     const response = await fetch(fullUrl);
     const data = await response.json();
 
@@ -33,34 +33,6 @@ app.get('/limiteds/:userId', async (req, res) => {
   }
 });
 
-// Get ALL owned gamepasses
-// Get ALL owned gamepasses
-app.get('/gamepasses/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    let results = [];
-    let pageToken = null;
-
-    do {
-      const url = `https://apis.roblox.com/game-passes/v1/users/${userId}/game-passes?count=100${pageToken ? `&pageToken=${pageToken}` : ''}`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      console.log('Response:', JSON.stringify(data));
-
-      if (data.gamePassItems) results = results.concat(data.gamePassItems);
-      if (data.data) results = results.concat(data.data);
-
-      pageToken = data.nextPageToken || null;
-
-    } while (pageToken);
-
-    res.json({ data: results, total: results.length });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 app.listen(PORT, () => {
   console.log(`Proxy running on port ${PORT}`);
 });
-
