@@ -29,17 +29,23 @@ app.get('/limiteds/:userId', async (req, res) => {
   }
 });
 
-// Check if userId has Roblox Premium
 app.get('/premium/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     const response = await fetch(
       `https://premiumfeatures.roblox.com/v1/users/${userId}/validate-membership`
     );
-    if (!response.ok) throw new Error(`Roblox API error: ${response.status}`);
-    const hasPremium = await response.json(); // returns true or false
+    
+    const text = await response.text();
+    console.log("Status:", response.status);
+    console.log("Body:", text);
+
+    if (!response.ok) throw new Error(`Roblox API error: ${response.status} - ${text}`);
+    
+    const hasPremium = JSON.parse(text);
     res.json({ userId, premium: hasPremium });
   } catch (error) {
+    console.error("Premium error:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -47,3 +53,4 @@ app.get('/premium/:userId', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Proxy running on port ${PORT}`);
 });
+
