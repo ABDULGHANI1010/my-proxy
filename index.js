@@ -33,15 +33,17 @@ app.get('/premium/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     const response = await fetch(
-      `https://premiumfeatures.roblox.com/v1/users/${userId}/validate-membership`
+      `https://premiumfeatures.roblox.com/v1/users/${userId}/validate-membership`,
+      {
+        headers: {
+          'Cookie': `.ROBLOSECURITY=${process.env.ROBLOX_COOKIE}`
+        }
+      }
     );
-    
-    const text = await response.text();
-    console.log("Status:", response.status);
-    console.log("Body:", text);
 
+    const text = await response.text();
     if (!response.ok) throw new Error(`Roblox API error: ${response.status} - ${text}`);
-    
+
     const hasPremium = JSON.parse(text);
     res.json({ userId, premium: hasPremium });
   } catch (error) {
@@ -53,4 +55,5 @@ app.get('/premium/:userId', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Proxy running on port ${PORT}`);
 });
+
 
